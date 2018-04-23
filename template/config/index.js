@@ -10,7 +10,6 @@ module.exports = {
         clientIp: myIP(),
         assetsSubDirectory: 'static',
         cdn: '//cdn.fmfe.com',
-        // api: 'https://alibetawww.followme.com',
         api: '//dev.fmfe.com',
         base: '//dev.fmfe.com',
         fmbase: '//dev.fmfe.com'

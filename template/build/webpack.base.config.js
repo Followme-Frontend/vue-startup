@@ -4,7 +4,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MxWebpackContentReplacePlugin = require('mx-webpack-content-replace-plugin');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const HappyPack = require('happypack');   
-const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 
 const getHappyPackConfig = require('./happypack');
 const config = require('../config');
@@ -82,6 +81,10 @@ module.exports = {
         modules: [utils.resolve('node_modules')]
     },
 
+    externals: {
+        'es6-promise': 'window.ES6Promise'
+    },
+
     performance: {
         hints: false
     },
@@ -97,16 +100,6 @@ module.exports = {
             API: JSON.stringify(api),
             BASE: JSON.stringify(base)
         }),
-
-        new webpack.DllReferencePlugin({
-            context: __dirname,
-            // 引入 dll 生成的 manifest 文件
-            manifest: utils.resolve('dist/vendor-manifest.json')
-        }),
-
-        // new AddAssetHtmlPlugin({
-        //     filepath: utils.resolve('dist/*.dll.js')
-        // }),
 
         new HappyPack(getHappyPackConfig({
             id: 'js',

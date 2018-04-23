@@ -3,7 +3,9 @@ const merge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
-const HappyPack = require('happypack');   
+const HappyPack = require('happypack');
+const WebpackMd5Hash = require('webpack-md5-hash');
+const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');   
 
 const getHappyPackConfig = require('./happypack');
 const utils = require('./utils');
@@ -11,10 +13,10 @@ const baseWebpackConfig = require('./webpack.base.config');
 const config = require('../config');
 
 const env = process.env.NODE_ENV || 'development';
-const manifest = require('../dist/vendor-manifest.json');
 
 module.exports = merge(baseWebpackConfig, {
     entry: {
+        vendor: ['vue', 'vue-router', 'axios'],
         app: utils.resolve('src/page/index.js')
     },
     module: {
@@ -55,12 +57,25 @@ module.exports = merge(baseWebpackConfig, {
         }),
 
         new webpack.optimize.CommonsChunkPlugin({
-            name: ['manifest'], // ['vender', 'commons']
-            // minChunks: ({ resource }) => (
-            //     resource &&
-            //     resource.indexOf('node_modules') >= 0 &&
-            //     resource.match(/\.js$/)
-            // )
+            // 提取公共模块
+            name: 'vendor'
+            // minChunks: (module, count) => {
+            //     return module.resource && /node_modules/.test(module.resource);
+            // }
+        }),
+
+        new webpack.optimize.CommonsChunkPlugin({
+            // 针对 entry chunk 下的子 chunk 提取异步公共模块
+            name: 'app',
+            async: 'commonlazy.js', 
+            children: true,
+            minChunks: 3
+        }),
+
+        // https://github.com/erm0l0v/webpack-md5-hash/issues/9
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'manifest',
+            minChunks: Infinity
         }),
 
         // gzip
@@ -78,9 +93,9 @@ module.exports = merge(baseWebpackConfig, {
             sourceMap: false
         }),
         
-        new webpack.optimize.ModuleConcatenationPlugin()
-        // 去掉 md5: https://github.com/erm0l0v/webpack-md5-hash/issues/9
-        // new WebpackMd5Hash()
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new InlineManifestWebpackPlugin(),
+        new WebpackMd5Hash()
     ]
 });
 
