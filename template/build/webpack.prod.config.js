@@ -2,7 +2,6 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
-const WebpackMd5Hash = require('webpack-md5-hash');
 const CompressionPlugin = require('compression-webpack-plugin');
 const HappyPack = require('happypack');   
 
@@ -79,8 +78,9 @@ module.exports = merge(baseWebpackConfig, {
             sourceMap: false
         }),
         
-        new webpack.optimize.ModuleConcatenationPlugin(),
-        new WebpackMd5Hash()
+        new webpack.optimize.ModuleConcatenationPlugin()
+        // 去掉 md5: https://github.com/erm0l0v/webpack-md5-hash/issues/9
+        // new WebpackMd5Hash()
     ]
 });
 
