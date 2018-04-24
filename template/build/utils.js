@@ -1,8 +1,6 @@
 const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const config = require('../config');
-
 const env = process.env.NODE_ENV || 'development';
 
 function resolve (dir) {

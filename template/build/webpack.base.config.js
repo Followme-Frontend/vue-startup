@@ -23,6 +23,7 @@ console.log('\n---------api------:\n', api, '\n');
 
 module.exports = {
     context: utils.resolve('src'),
+    mode: env === 'development' ? env : 'production',
     module: {
         noParse: [/static|assets/],
         rules: [
@@ -32,10 +33,12 @@ module.exports = {
                 {{#fmcomponents}}
                 include: utils.getExcludAndInclude().include,
                 {{/fmcomponents}}
+                type: 'javascript/auto',
                 loader: 'happypack/loader?id=js'
             },
             {
                 test: /\.vue$/,
+                type: 'javascript/auto',
                 exclude: utils.getExcludAndInclude().exclude,
                 {{#fmcomponents}}
                 include: utils.getExcludAndInclude().include,
@@ -46,6 +49,7 @@ module.exports = {
             },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                type: 'javascript/auto',
                 use: [{
                     loader: 'url-loader',
                     options: {
@@ -56,6 +60,7 @@ module.exports = {
             },
             {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+                type: 'javascript/auto',
                 use: [{
                     loader: 'url-loader',
                     options: {

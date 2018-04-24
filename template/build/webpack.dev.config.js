@@ -23,6 +23,7 @@ module.exports = merge(baseWebpackConfig, {
         rules: [
             {
                 test: /\.(less|css)$/,
+                type: 'javascript/auto',
                 use: ['happypack/loader?id=css']
             }
         ]

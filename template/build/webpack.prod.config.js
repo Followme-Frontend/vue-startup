@@ -1,11 +1,12 @@
 const webpack = require('webpack');
 const merge = require('webpack-merge');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HappyPack = require('happypack');
 const WebpackMd5Hash = require('webpack-md5-hash');
-const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');   
+const WebpackInlineManifestPlugin = require('webpack-inline-manifest-plugin');
 
 const getHappyPackConfig = require('./happypack');
 const utils = require('./utils');
@@ -16,17 +17,18 @@ const env = process.env.NODE_ENV || 'development';
 
 module.exports = merge(baseWebpackConfig, {
     entry: {
-        vendor: ['vue', 'vue-router', 'axios'],
+        vendors: ['vue', 'vue-router', 'axios', 'async-await-error-handling'],
         app: utils.resolve('src/page/index.js')
     },
     module: {
         rules: [
             {
                 test: /\.(less|css)$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'vue-style-loader',
-                    use: ['happypack/loader?id=css']
-                })
+                type: 'javascript/auto',
+                loaders: [
+                    MiniCssExtractPlugin.loader,
+                    'happypack/loader?id=css'
+                ]
             }
         ]
     },
@@ -34,10 +36,31 @@ module.exports = merge(baseWebpackConfig, {
         filename: utils.assetsPath('js/[name].[chunkhash:8].js'),
         path: config[env].assetsRoot,
         publicPath: config[env].assetsPublicPath,
-        sourceMapFilename: '[file].map',
         chunkFilename: utils.assetsPath('js/[name].[chunkhash:8].js')
     },
     devtool: false,
+    optimization: {
+        // chunk for the webpack runtime code and chunk manifest
+        runtimeChunk: {
+            name: 'manifest'
+        },
+        // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
+        splitChunks: {
+            cacheGroups: {
+                vendors: {
+                    name: 'vendors',
+                    priority: -20
+                },
+                commons: {
+                    // 抽取 demand-chunk 下的公共依赖模块
+                    name: 'commons',
+                    minChunks: 3,
+                    chunks: 'async',
+                    minSize: 0
+                }
+            }
+        }
+    },
     plugins: [
         new webpack.HashedModuleIdsPlugin(),
 
@@ -46,7 +69,7 @@ module.exports = merge(baseWebpackConfig, {
             loaders: utils.extractCSS()
         })),
 
-        new ExtractTextPlugin({
+        new MiniCssExtractPlugin({
             filename: utils.assetsPath('css/[name].[contenthash:8].css')
         }),
 
@@ -56,27 +79,27 @@ module.exports = merge(baseWebpackConfig, {
             }
         }),
 
-        new webpack.optimize.CommonsChunkPlugin({
-            // 提取公共模块
-            name: 'vendor'
-            // minChunks: (module, count) => {
-            //     return module.resource && /node_modules/.test(module.resource);
-            // }
-        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     // 提取公共模块
+        //     name: 'vendors'
+        //     // minChunks: (module, count) => {
+        //     //     return module.resource && /node_modules/.test(module.resource);
+        //     // }
+        // }),
 
-        new webpack.optimize.CommonsChunkPlugin({
-            // 针对 entry chunk 下的子 chunk 提取异步公共模块
-            name: 'app',
-            async: 'commonlazy.js', 
-            children: true,
-            minChunks: 3
-        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     // 针对 entry chunk 下的子 chunk 提取异步公共模块
+        //     name: 'app',
+        //     async: 'commonlazy.js', 
+        //     children: true,
+        //     minChunks: 3
+        // }),
 
-        // https://github.com/erm0l0v/webpack-md5-hash/issues/9
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'manifest',
-            minChunks: Infinity
-        }),
+        // // https://github.com/erm0l0v/webpack-md5-hash/issues/9
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: 'manifest',
+        //     minChunks: Infinity
+        // }),
 
         // gzip
         new CompressionPlugin({
@@ -87,15 +110,25 @@ module.exports = merge(baseWebpackConfig, {
             minRatio: 0.8
         }),
 
-        new webpack.optimize.UglifyJsPlugin({
-            cache: true,
+        new UglifyJsPlugin({
             parallel: true,
-            sourceMap: false
+            cache: true,
+            sourceMap: true,
+            uglifyOptions: {
+                compress: {
+                    warnings: false,
+                    /* eslint-disable */
+                    drop_debugger: true,
+                    drop_console: true
+                },
+                mangle: true
+            }
         }),
-        
-        new webpack.optimize.ModuleConcatenationPlugin(),
-        new InlineManifestWebpackPlugin(),
-        new WebpackMd5Hash()
+                
+        new WebpackMd5Hash(),
+        new WebpackInlineManifestPlugin({
+            name: 'webpackManifest'
+        })
     ]
 });
 
