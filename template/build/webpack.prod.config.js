@@ -83,7 +83,7 @@ module.exports = merge(baseWebpackConfig, {
             asset: '[path].gz[query]',
             algorithm: 'gzip',
             test: /\.(js|html|less|css)$/,
-            threshold: 10240,
+            threshold: 0,
             minRatio: 0.8
         }),
 
