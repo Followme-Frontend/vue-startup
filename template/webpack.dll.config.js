@@ -10,18 +10,20 @@ dependencies = dependencies.map(item => {
     if (item === 'vue') {
         return 'vue/dist/vue.esm.js';
     }
-    if (item === 'normalize.css' || item === 'fmcomponents') {
+    if (item === 'normalize.css') {
         return 0;
     }
     return item;
 }).filter(item => !!item);
 
+const env = process.env.NODE_ENV || 'development';
+
 const dllConfig = {
     context: process.cwd(),
+    mode: env,
     entry: {
         vendor: dependencies
     },
-    devtool: 'source-map',
     module: {
         rules: [
             {
@@ -51,13 +53,7 @@ const dllConfig = {
                     cacheDirectory: true
                 }
             }] 
-        })),
-
-        new webpack.optimize.UglifyJsPlugin({
-            cache: true,
-            parallel: true,
-            sourceMap: true
-        })
+        }))
     ]
 };
 
