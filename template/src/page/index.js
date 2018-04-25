@@ -35,6 +35,7 @@ if (env !== 'development') {
 {{#if_eq state 'vuex'}}
 import store from '../store/index';
 {{/if_eq}}
+import i18n from '../i18n/index';
 
 Vue.use(VueRouter);
 
@@ -73,6 +74,7 @@ const app = new Vue({
     {{#if_eq state 'revue'}}
     modules,
     {{/if_eq}}
+    i18n,
     ...Outer
 });
 

@@ -145,6 +145,7 @@ module.exports = {
             template: 'index.html',
             inject: true,
             env: env,
+            cdn: cdn,
             minify: {
                 removeComments: true,
                 collapseWhitespace: true,

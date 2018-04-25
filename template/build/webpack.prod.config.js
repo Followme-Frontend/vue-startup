@@ -17,7 +17,10 @@ const env = process.env.NODE_ENV || 'development';
 
 module.exports = merge(baseWebpackConfig, {
     entry: {
-        vendors: ['vue', 'vue-router', 'axios', 'async-await-error-handling'],
+        vendors: [
+            'vue', 'vue-router', 'axios', 
+            'async-await-error-handling', 'vue-i18n'
+        ],
         app: utils.resolve('src/page/index.js')
     },
     module: {
