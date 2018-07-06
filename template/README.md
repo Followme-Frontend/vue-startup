@@ -41,8 +41,10 @@
     |——assets               // 资源
     |——components           // 业务通用组件
     |——general              // 纯业务组件
+    |——i18n                 // 国际化
     |——lib                  // 公共库
     |——network              // 网络请求
+    |——router               // 路由配置
     |——page                 // 项目入口
     |——store                // store 入口
     |——index.html           // 挂载的静态文件
